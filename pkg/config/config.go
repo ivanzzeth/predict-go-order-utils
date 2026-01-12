@@ -7,21 +7,25 @@ import (
 )
 
 type Contracts struct {
-	Exchange         common.Address
-	NegRiskExchange  common.Address
-	NegRiskAdapter   common.Address
-	Collateral       common.Address
-	Conditional      common.Address
+	Exchange                  common.Address
+	NegRiskExchange           common.Address
+	NegRiskAdapter            common.Address
+	Collateral                common.Address
+	Conditional               common.Address
+	YieldBearingExchange      common.Address
+	YieldBearingNegRiskExchange common.Address
 }
 
 var (
 	// BNB Chain Mainnet (Chain ID: 56)
 	_BNB_CHAIN_CONTRACTS = &Contracts{
-		Exchange:         common.HexToAddress("0x8BC070BEdAB741406F4B1Eb65A72bee27894B689"),
-		NegRiskExchange:  common.HexToAddress("0x365fb81bd4A24D6303cd2F19c349dE6894D8d58A"),
-		NegRiskAdapter:   common.HexToAddress("0xc3Cf7c252f65E0d8D88537dF96569AE94a7F1A6E"),
-		Collateral:       common.HexToAddress("0x55d398326f99059fF775485246999027B3197955"), // USDT
-		Conditional:      common.HexToAddress("0x22DA1810B194ca018378464a58f6Ac2B10C9d244"),
+		Exchange:                    common.HexToAddress("0x8BC070BEdAB741406F4B1Eb65A72bee27894B689"),
+		NegRiskExchange:             common.HexToAddress("0x365fb81bd4A24D6303cd2F19c349dE6894D8d58A"),
+		NegRiskAdapter:              common.HexToAddress("0xc3Cf7c252f65E0d8D88537dF96569AE94a7F1A6E"),
+		Collateral:                  common.HexToAddress("0x55d398326f99059fF775485246999027B3197955"), // USDT
+		Conditional:                 common.HexToAddress("0x22DA1810B194ca018378464a58f6Ac2B10C9d244"),
+		YieldBearingExchange:        common.HexToAddress("0x6bEb5a40C032AFc305961162d8204CDA16DECFa5"),
+		YieldBearingNegRiskExchange: common.HexToAddress("0xd4789042386035D3C98E7a0Ca1f6C7476e60E8C0"),
 	}
 
 	// BNB Chain Testnet (Chain ID: 97)

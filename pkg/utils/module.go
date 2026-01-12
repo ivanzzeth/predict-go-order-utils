@@ -20,6 +20,10 @@ func GetVerifyingContractAddress(chainId *big.Int, contract model.VerifyingContr
 		return contracts.Exchange, nil
 	case model.NegRiskCTFExchange:
 		return contracts.NegRiskExchange, nil
+	case model.YieldBearingCTFExchange:
+		return contracts.YieldBearingExchange, nil
+	case model.YieldBearingNegRiskCTFExchange:
+		return contracts.YieldBearingNegRiskExchange, nil
 	}
 
 	return common.Address{}, fmt.Errorf("invalid contract")

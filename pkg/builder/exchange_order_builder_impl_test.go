@@ -23,8 +23,10 @@ var (
 	salt = int64(479249096354)
 
 	// Exchange addresses for testing (from config)
-	ctfExchangeAddr, _        = ExchangeAddressFromContract(chainId, model.CTFExchange)
-	negRiskCtfExchangeAddr, _ = ExchangeAddressFromContract(chainId, model.NegRiskCTFExchange)
+	ctfExchangeAddr, _                = ExchangeAddressFromContract(chainId, model.CTFExchange)
+	negRiskCtfExchangeAddr, _         = ExchangeAddressFromContract(chainId, model.NegRiskCTFExchange)
+	yieldBearingCtfExchangeAddr, _    = ExchangeAddressFromContract(chainId, model.YieldBearingCTFExchange)
+	yieldBearingNegRiskExchangeAddr, _ = ExchangeAddressFromContract(chainId, model.YieldBearingNegRiskCTFExchange)
 )
 
 func TestBuildOrder(t *testing.T) {
@@ -463,4 +465,72 @@ func TestBuildSignedOrderPredictBNBChain(t *testing.T) {
 
 	actualSignature := common.Bytes2Hex(signedOrder.Signature)
 	t.Logf("Predict BNB Chain signature: %s", actualSignature)
+}
+
+// TestBuildSignedOrderYieldBearingPythonSDKCompatible tests order signing against Python SDK output
+// This test verifies that Go implementation produces the same signature as Python predict-sdk
+func TestBuildSignedOrderYieldBearingPythonSDKCompatible(t *testing.T) {
+	// Test case generated from Python predict-sdk (sign_poc.py)
+	// Private key: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+	// Wallet: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+	// Fixed salt for reproducible test
+	fixedSalt := int64(12345678)
+	builder := NewExchangeOrderBuilderImpl(chainId, func() int64 { return fixedSalt })
+	ethSigner := ethsig.NewEthPrivateKeySigner(privateKey)
+
+	// Python SDK output:
+	// Token ID: 102573984881343066910588521432866186873146959784593028115930766464346050769159
+	// Maker Amount: 160000000000000000 (0.16 * 1e18, price * quantity)
+	// Taker Amount: 1000000000000000000 (1 * 1e18, quantity)
+	// Fee Rate BPS: 200
+	// Expiration: 1768255200
+	// Is Yield Bearing: true -> use YieldBearing CTF Exchange
+	// Expected Signature: 0x918b29b95ca2dcf2ef7316b2b7d06bf45443dff42c500de6f4dbbd6fc52676543955158688706fd6ee67cdb4113faa6c90f13d537e3c73bfe94e105fca5adf421c
+	// Expected Order Hash: 0x3a85e16a194180cd34681fcdea2668f0eab34d732431776d07e7e224ca28b6c3
+
+	signedOrder, err := builder.BuildSignedOrder(ethSigner, &model.OrderData{
+		Maker:         signerAddress.Hex(),
+		Signer:        signerAddress.Hex(),
+		Taker:         common.HexToAddress("0x0").Hex(),
+		TokenId:       "102573984881343066910588521432866186873146959784593028115930766464346050769159",
+		MakerAmount:   "160000000000000000",
+		TakerAmount:   "1000000000000000000",
+		Side:          model.BUY,
+		FeeRateBps:    "200",
+		Nonce:         "0",
+		Expiration:    "1768255200",
+		SignatureType: predictcontracts.SignatureTypeEOA,
+	}, yieldBearingCtfExchangeAddr)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, signedOrder)
+
+	// Verify order fields
+	assert.Equal(t, fixedSalt, signedOrder.Salt.Int64())
+	assert.Equal(t, signerAddress, signedOrder.Maker)
+	assert.Equal(t, signerAddress, signedOrder.Signer)
+	assert.Equal(t, common.HexToAddress("0x0"), signedOrder.Taker)
+	assert.Equal(t, "102573984881343066910588521432866186873146959784593028115930766464346050769159", signedOrder.TokenId.String())
+	assert.Equal(t, "160000000000000000", signedOrder.MakerAmount.String())
+	assert.Equal(t, "1000000000000000000", signedOrder.TakerAmount.String())
+	assert.Equal(t, "0", signedOrder.Side.String())
+	assert.Equal(t, "1768255200", signedOrder.Expiration.String())
+	assert.Equal(t, "200", signedOrder.FeeRateBps.String())
+	assert.NotEmpty(t, signedOrder.Signature)
+
+	// Verify order hash matches Python SDK
+	orderHash, err := builder.BuildOrderHash(&signedOrder.Order, yieldBearingCtfExchangeAddr)
+	assert.NoError(t, err)
+	expectedOrderHash := "0x3a85e16a194180cd34681fcdea2668f0eab34d732431776d07e7e224ca28b6c3"
+	assert.Equal(t, expectedOrderHash, orderHash.Hex(), "Order hash mismatch with Python SDK")
+
+	// Verify signature matches Python SDK
+	actualSignature := "0x" + common.Bytes2Hex(signedOrder.Signature)
+	expectedSignature := "0x918b29b95ca2dcf2ef7316b2b7d06bf45443dff42c500de6f4dbbd6fc52676543955158688706fd6ee67cdb4113faa6c90f13d537e3c73bfe94e105fca5adf421c"
+	assert.Equal(t, expectedSignature, actualSignature, "Signature mismatch with Python SDK")
+
+	t.Logf("YieldBearing CTF Exchange address: %s", yieldBearingCtfExchangeAddr.Hex())
+	t.Logf("Order hash: %s", orderHash.Hex())
+	t.Logf("Signature: %s", actualSignature)
 }
