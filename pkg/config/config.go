@@ -27,24 +27,13 @@ var (
 		YieldBearingExchange:        common.HexToAddress("0x6bEb5a40C032AFc305961162d8204CDA16DECFa5"),
 		YieldBearingNegRiskExchange: common.HexToAddress("0xd4789042386035D3C98E7a0Ca1f6C7476e60E8C0"),
 	}
-
-	// BNB Chain Testnet (Chain ID: 97)
-	_BNB_TESTNET_CONTRACTS = &Contracts{
-		Exchange:         common.HexToAddress("0x2A6413639BD3d73a20ed8C95F634Ce198ABbd2d7"),
-		NegRiskExchange:  common.HexToAddress("0xd690b2bd441bE36431F6F6639D7Ad351e7B29680"),
-		NegRiskAdapter:   common.HexToAddress("0x285c1B939380B130D7EBd09467b93faD4BA623Ed"),
-		Collateral:       common.HexToAddress("0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"), // USDT
-		Conditional:      common.HexToAddress("0x2827AAef52D71910E8FBad2FfeBC1B6C2DA37743"),
-	}
 )
 
 func GetContracts(chainId int64) (*Contracts, error) {
 	switch chainId {
 	case 56:
 		return _BNB_CHAIN_CONTRACTS, nil
-	case 97:
-		return _BNB_TESTNET_CONTRACTS, nil
 	default:
-		return nil, fmt.Errorf("invalid chain id: %d, only BNB (56) and BNB Testnet (97) are supported", chainId)
+		return nil, fmt.Errorf("invalid chain id: %d, only BNB Chain (56) is supported", chainId)
 	}
 }

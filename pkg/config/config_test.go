@@ -28,12 +28,6 @@ func TestGetContracts(t *testing.T) {
 	assert.True(t, bytes.Equal(c.Collateral[:], bnbChain.Collateral[:]))
 	assert.True(t, bytes.Equal(c.Conditional[:], bnbChain.Conditional[:]))
 
-	// Test BNB Testnet
-	c, err = GetContracts(97)
-	assert.NotNil(t, c)
-	assert.Nil(t, err)
-	assert.Equal(t, common.HexToAddress("0x2A6413639BD3d73a20ed8C95F634Ce198ABbd2d7"), c.Exchange)
-
 	// Invalid chain ID
 	c, err = GetContracts(100000)
 	assert.Nil(t, c)
