@@ -25,7 +25,7 @@ var (
 		Collateral:                  common.HexToAddress("0x55d398326f99059fF775485246999027B3197955"), // USDT
 		Conditional:                 common.HexToAddress("0x22DA1810B194ca018378464a58f6Ac2B10C9d244"),
 		YieldBearingExchange:        common.HexToAddress("0x6bEb5a40C032AFc305961162d8204CDA16DECFa5"),
-		YieldBearingNegRiskExchange: common.HexToAddress("0xd4789042386035D3C98E7a0Ca1f6C7476e60E8C0"),
+		YieldBearingNegRiskExchange: common.HexToAddress("0x8A289d458f5a134bA40015085A8F50Ffb681B41d"),
 	}
 )
 
